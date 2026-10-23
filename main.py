@@ -3,6 +3,19 @@ from datetime import date
 from book import Book
 from library import Library
 
+UNKNOWN_DATE = date(2022, 1, 1)
+
+
+def ask_date(message, default):
+    text = input(f"{message} (AAAA-MM-DD, Enter = {default.isoformat()}): ").strip()
+    if not text:
+        return default
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        print(f"Fecha no válida: se usa {default.isoformat()}.")
+        return default
+
 
 def show_books(books):
     if not books:
@@ -22,12 +35,7 @@ def add_book_option(library):
     status = "read" if has_read == "s" else "to_read"
     date_read = None
     if status == "read":
-        date_text = input("Fecha de lectura (AAAA-MM-DD, Enter si no la recuerdas): ").strip()
-        if date_text:
-            try:
-                date_read = date.fromisoformat(date_text)
-            except ValueError:
-                print("Fecha no válida: se guarda sin fecha.")
+        date_read = ask_date("Fecha de lectura", UNKNOWN_DATE)
     is_new = library.add_book(Book(title, author, status, date_read=date_read))
     if is_new:
         print("Libro añadido a la biblioteca.")
@@ -37,10 +45,16 @@ def add_book_option(library):
 
 def mark_as_read_option(library):
     title = input("Título del libro que has leído: ").strip()
-    if library.mark_as_read(title):
-        print("Libro marcado como leído.")
-    else:
+    book = library.find_book(title)
+    if book is None:
         print("No se ha encontrado ese libro.")
+        return
+    if book.status == "read":
+        print("Ese libro ya está marcado como leído.")
+        return
+    date_read = ask_date("Fecha de lectura", date.today())
+    library.mark_as_read(title, date_read)
+    print("Libro marcado como leído.")
 
 
 def edit_title_option(library):
@@ -56,6 +70,7 @@ def edit_title_option(library):
         print("Ya existe otro libro con ese título.")
     else:
         print("No se ha encontrado ese libro.")
+
 
 def remove_book_option(library):
     title = input("Título del libro que quieres dar de baja: ").strip()
@@ -85,6 +100,7 @@ def remove_book_option(library):
         print("Se ha quitado un ejemplar.")
     else:
         print("Libro dado de baja.")
+
 
 def main():
     library = Library()
