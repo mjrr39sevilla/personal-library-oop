@@ -1,3 +1,5 @@
+from datetime import date
+
 from book import Book
 from library import Library
 
@@ -18,7 +20,15 @@ def add_book_option(library):
         return
     has_read = input("¿Ya lo has leído? (s/n): ").strip().lower()
     status = "read" if has_read == "s" else "to_read"
-    is_new = library.add_book(Book(title, author, status))
+    date_read = None
+    if status == "read":
+        date_text = input("Fecha de lectura (AAAA-MM-DD, Enter si no la recuerdas): ").strip()
+        if date_text:
+            try:
+                date_read = date.fromisoformat(date_text)
+            except ValueError:
+                print("Fecha no válida: se guarda sin fecha.")
+    is_new = library.add_book(Book(title, author, status, date_read=date_read))
     if is_new:
         print("Libro añadido a la biblioteca.")
     else:
@@ -47,6 +57,34 @@ def edit_title_option(library):
     else:
         print("No se ha encontrado ese libro.")
 
+def remove_book_option(library):
+    title = input("Título del libro que quieres dar de baja: ").strip()
+    book = library.find_book(title)
+    if book is None:
+        print("No se ha encontrado ese libro.")
+        return
+
+    remove_all = True
+    if book.copies > 1:
+        answer = input(
+            f"Tiene {book.copies} ejemplares. ¿Quitar solo uno (u) o todos (t)?: "
+        ).strip().lower()
+        if answer == "u":
+            remove_all = False
+        elif answer != "t":
+            print("Opción no válida. Operación cancelada.")
+            return
+
+    confirm = input(f"¿Seguro que quieres dar de baja '{book.title}'? (s/n): ").strip().lower()
+    if confirm != "s":
+        print("Operación cancelada.")
+        return
+
+    result = library.remove_book(title, remove_all)
+    if result == "copy_removed":
+        print("Se ha quitado un ejemplar.")
+    else:
+        print("Libro dado de baja.")
 
 def main():
     library = Library()
@@ -59,6 +97,7 @@ def main():
         print("5. Ver libros duplicados")
         print("6. Marcar un libro como leído")
         print("7. Modificar el título de un libro")
+        print("8. Dar de baja un libro")
         print("0. Salir")
         option = input("Elige una opción: ").strip()
 
@@ -76,6 +115,8 @@ def main():
             mark_as_read_option(library)
         elif option == "7":
             edit_title_option(library)
+        elif option == "8":
+            remove_book_option(library)
         elif option == "0":
             print("¡Hasta pronto!")
             break
