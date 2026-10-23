@@ -1,7 +1,6 @@
 import json
+import shutil
 from pathlib import Path
-
-from book import Book
 
 DEFAULT_FILE = Path(__file__).parent / "books.json"
 
@@ -21,7 +20,12 @@ class Library:
         try:
             with open(self.file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except FileNotFoundError:
+            return
+        except json.JSONDecodeError:
+            backup_path = Path(str(self.file_path) + ".bak")
+            shutil.copy(self.file_path, backup_path)
+            print(f"El archivo de libros está dañado. Copia guardada en {backup_path.name}.")
             return
         self.books = [Book.from_dict(item) for item in data]
 
@@ -38,8 +42,6 @@ class Library:
             self.save()
             return False
         self.books.append(book)
-        if book.status == "read" and book.date_read is None:
-            book.mark_as_read()
         self.save()
         return True
 
@@ -61,6 +63,18 @@ class Library:
         book.title = new_title
         self.save()
         return "updated"
+
+    def remove_book(self, title, remove_all=True):
+        book = self.find_book(title)
+        if book is None:
+            return "not_found"
+        if not remove_all and book.copies > 1:
+            book.copies -= 1
+            self.save()
+            return "copy_removed"
+        self.books.remove(book)
+        self.save()
+        return "removed"
 
     def get_books_by_status(self, status):
         return [book for book in self.books if book.status == status]
