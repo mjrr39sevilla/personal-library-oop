@@ -1,10 +1,12 @@
+import unicodedata
+
 from datetime import date
 
 from book import Book
 from library import Library
 
 UNKNOWN_DATE = date(2022, 1, 1)
-
+PAGE_SIZE = 20
 
 def ask_date(message, default):
     text = input(f"{message} (AAAA-MM-DD, Enter = {default.isoformat()}): ").strip()
@@ -17,12 +19,24 @@ def ask_date(message, default):
         return default
 
 
+def title_sort_key(book):
+    normalized = unicodedata.normalize("NFD", book.title.lower())
+    return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+
+
 def show_books(books):
     if not books:
         print("No hay libros para mostrar.")
         return
-    for book in books:
-        print(book)
+    sorted_books = sorted(books, key=title_sort_key)
+    total = len(sorted_books)
+    for index, book in enumerate(sorted_books, start=1):
+        print(f"{index}. {book}")
+        if index % PAGE_SIZE == 0 and index < total:
+            answer = input(f"--- {index} de {total} --- Enter para seguir, q para salir: ").strip().lower()
+            if answer == "q":
+                return
+    print(f"--- Total: {total} libros ---")
 
 
 def add_book_option(library):
