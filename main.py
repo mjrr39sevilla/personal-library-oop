@@ -115,6 +115,20 @@ def remove_book_option(library):
     else:
         print("Libro dado de baja.")
 
+def show_summary_option(library):
+    summary = library.get_summary()
+    print("\n--- Resumen de mi biblioteca ---")
+    print(f"Libros distintos: {summary['titles']}")
+    print(f"Ejemplares en total: {summary['copies']}")
+    print(f"Leídos: {summary['read']}")
+    print(f"Pendientes de leer: {summary['to_read']}")
+    print(f"Con ejemplares duplicados: {summary['duplicated']}")
+
+    by_year = library.get_read_by_year()
+    if by_year:
+        print("\nLeídos por año:")
+        for year in sorted(by_year, reverse=True):
+            print(f"  {year}: {by_year[year]}")
 
 def main():
     library = Library()
@@ -128,6 +142,7 @@ def main():
         print("6. Marcar un libro como leído")
         print("7. Modificar el título de un libro")
         print("8. Dar de baja un libro")
+        print("9. Ver resumen de mi biblioteca")
         print("0. Salir")
         option = input("Elige una opción: ").strip()
 
@@ -147,6 +162,8 @@ def main():
             edit_title_option(library)
         elif option == "8":
             remove_book_option(library)
+        elif option == "9":
+            show_summary_option(library)
         elif option == "0":
             print("¡Hasta pronto!")
             break
