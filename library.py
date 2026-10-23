@@ -38,6 +38,8 @@ class Library:
             self.save()
             return False
         self.books.append(book)
+        if book.status == "read" and book.date_read is None:
+            book.mark_as_read()
         self.save()
         return True
 
