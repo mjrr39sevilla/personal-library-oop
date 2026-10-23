@@ -83,3 +83,20 @@ class Library:
 
     def get_duplicated_books(self):
         return [book for book in self.books if book.is_duplicated()]
+
+    def get_summary(self):
+        return {
+            "titles": len(self.books),
+            "copies": sum(book.copies for book in self.books),
+            "read": len(self.get_books_by_status("read")),
+            "to_read": len(self.get_books_by_status("to_read")),
+            "duplicated": len(self.get_duplicated_books()),
+        }
+
+    def get_read_by_year(self):
+        counts = {}
+        for book in self.books:
+            if book.status == "read" and book.date_read:
+                year = book.date_read.year
+                counts[year] = counts.get(year, 0) + 1
+        return counts
