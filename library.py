@@ -2,13 +2,15 @@ import json
 import shutil
 from pathlib import Path
 
+from book import Book
+
 DEFAULT_FILE = Path(__file__).parent / "books.json"
 
 
 class Library:
     def __init__(self, file_path=DEFAULT_FILE):
         self.books = []
-        self.file_path = file_path
+        self.file_path = Path(file_path)
         self.load()
 
     def save(self):
@@ -45,11 +47,11 @@ class Library:
         self.save()
         return True
 
-    def mark_as_read(self, title):
+    def mark_as_read(self, title, date_read=None):
         book = self.find_book(title)
         if book is None:
             return False
-        book.mark_as_read()
+        book.mark_as_read(date_read)
         self.save()
         return True
 
