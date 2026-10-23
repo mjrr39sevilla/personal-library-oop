@@ -130,6 +130,13 @@ def show_summary_option(library):
         for year in sorted(by_year, reverse=True):
             print(f"  {year}: {by_year[year]}")
 
+def list_by_author_option(library):
+    author = input("Autor (basta con una parte del nombre): ").strip()
+    if not author:
+        print("El autor no puede estar vacío.")
+        return
+    show_books(library.get_books_by_author(author))
+
 def main():
     library = Library()
     while True:
@@ -143,6 +150,7 @@ def main():
         print("7. Modificar el título de un libro")
         print("8. Dar de baja un libro")
         print("9. Ver resumen de mi biblioteca")
+        print("10. Ver libros de un autor")
         print("0. Salir")
         option = input("Elige una opción: ").strip()
 
@@ -164,6 +172,8 @@ def main():
             remove_book_option(library)
         elif option == "9":
             show_summary_option(library)
+        elif option == "10":
+            list_by_author_option(library)
         elif option == "0":
             print("¡Hasta pronto!")
             break
