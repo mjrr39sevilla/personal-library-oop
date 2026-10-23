@@ -11,7 +11,10 @@ class Book:
 
     def mark_as_read(self, date_read=None):
         self.status = "read"
-        self.date_read = date_read if date_read is not None else date.today()
+        if date_read is not None:
+            self.date_read = date_read
+        elif self.date_read is None:
+            self.date_read = date.today()
 
     def is_duplicated(self):
         return self.copies > 1
