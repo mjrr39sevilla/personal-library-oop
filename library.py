@@ -1,11 +1,15 @@
 import json
 import shutil
+import unicodedata
 from pathlib import Path
 
 from book import Book
 
 DEFAULT_FILE = Path(__file__).parent / "books.json"
 
+def normalize_text(text):
+    normalized = unicodedata.normalize("NFD", text.lower())
+    return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
 
 class Library:
     def __init__(self, file_path=DEFAULT_FILE):
@@ -100,3 +104,7 @@ class Library:
                 year = book.date_read.year
                 counts[year] = counts.get(year, 0) + 1
         return counts
+
+    def get_books_by_author(self, author):
+        search = normalize_text(author)
+        return [book for book in self.books if search in normalize_text(book.author)]
