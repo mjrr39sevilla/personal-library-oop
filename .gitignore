@@ -4,3 +4,4 @@ __pycache__/
 .idea/
 books.json
 *.bak
+check_books.py
