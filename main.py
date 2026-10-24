@@ -2,7 +2,7 @@ import unicodedata
 
 from datetime import date
 
-from book import Book
+from book import PendingBook, ReadBook
 from library import Library
 
 UNKNOWN_DATE = date(2022, 1, 1)
@@ -46,11 +46,13 @@ def add_book_option(library):
         print("El título y el autor no pueden estar vacíos.")
         return
     has_read = input("¿Ya lo has leído? (s/n): ").strip().lower()
-    status = "read" if has_read == "s" else "to_read"
-    date_read = None
-    if status == "read":
+    if has_read == "s":
         date_read = ask_date("Fecha de lectura", UNKNOWN_DATE)
-    is_new = library.add_book(Book(title, author, status, date_read=date_read))
+        new_book = ReadBook(title, author, date_read=date_read)
+    else:
+        new_book = PendingBook(title, author)
+    is_new = library.add_book(new_book)
+
     if is_new:
         print("Libro añadido a la biblioteca.")
     else:
