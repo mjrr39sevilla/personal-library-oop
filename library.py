@@ -55,7 +55,8 @@ class Library:
         book = self.find_book(title)
         if book is None:
             return False
-        book.mark_as_read(date_read)
+        index = self.books.index(book)
+        self.books[index] = book.mark_as_read(date_read)
         self.save()
         return True
 
