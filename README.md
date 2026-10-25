@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/POO-4%20pilares-8A2BE2" alt="POO: 4 pilares">
-  <img src="https://img.shields.io/badge/Interfaz-consola-informational" alt="Interfaz de consola">
+  <img src="https://img.shields.io/badge/Interfaz-consola%20%2B%20web-informational" alt="Interfaz de consola y web">
   <img src="https://img.shields.io/badge/Datos-JSON-lightgrey" alt="Datos en JSON">
 </p>
 
@@ -26,6 +26,8 @@ Aplicación de consola en Python para gestionar mi biblioteca personal de libros
 
 Permite registrar libros leídos y pendientes de leer, controlar los duplicados, guardar la fecha de lectura y consultar la biblioteca por estado, por autor o en forma de resumen. Los datos se guardan en un archivo para no perderlos al cerrar el programa.
 
+Además, incluye una **versión web responsive** que reproduce el mismo diseño de clases (ver [Versión web](#versión-web)).
+
 ### Un vistazo rápido
 
 - 📗 Libros **leídos**, cada uno con su fecha de lectura
@@ -34,6 +36,7 @@ Permite registrar libros leídos y pendientes de leer, controlar los duplicados,
 - 🔎 Búsqueda **por autor**, sin tildes ni mayúsculas
 - 📊 **Resumen** de la biblioteca con lecturas por año
 - 💾 Datos **siempre guardados** en `books.json`, con copia de seguridad si el archivo se daña
+- 🌐 **Versión web** responsive en la carpeta `web/`
 
 ---
 
@@ -49,9 +52,10 @@ Permite registrar libros leídos y pendientes de leer, controlar los duplicados,
 8. [Ejemplo de interacción](#ejemplo-de-interacción)
 9. [Tecnologías utilizadas](#tecnologías-utilizadas)
 10. [Cómo ejecutar el programa](#cómo-ejecutar-el-programa)
-11. [Decisiones de diseño](#decisiones-de-diseño)
-12. [Control de versiones](#control-de-versiones)
-13. [Posibles mejoras](#posibles-mejoras)
+11. [Versión web](#versión-web)
+12. [Decisiones de diseño](#decisiones-de-diseño)
+13. [Control de versiones](#control-de-versiones)
+14. [Posibles mejoras](#posibles-mejoras)
 
 ## Objetivo y contexto
 
@@ -154,7 +158,11 @@ personal-library-oop/
 ├── main.py          # Menú interactivo en la terminal
 ├── README.md
 ├── .gitignore
-└── books.json       # Datos personales (se crea solo; no se sube a GitHub)
+├── books.json       # Datos personales (se crea solo; no se sube a GitHub)
+└── web/             # Versión web responsive
+    ├── index.html   # Estructura de la página
+    ├── styles.css   # Diseño responsive y modo claro/oscuro
+    └── app.js       # Clases Book y Library + interfaz
 ```
 
 ## Cómo se guardan los datos
@@ -184,7 +192,7 @@ Los libros se guardan en `books.json` cada vez que se añade, modifica o elimina
 
 ## Reglas de negocio
 
-- **Duplicados:** un libro con el mismo título (sin distinguir mayúsculas) no se registra dos veces; se suma un ejemplar a `copies`.
+- **Duplicados:** un libro con el mismo título (sin distinguir mayúsculas) no se registra dos veces; se suma un ejemplar a `copies`. La versión web considera duplicado cualquier libro con `copies` mayor que 1 o con el mismo título que otro, ignorando mayúsculas y tildes.
 - **Pendientes sin fecha:** un libro pendiente no tiene fecha de lectura. Se pide la fecha al marcarlo como leído.
 - **Fecha comodín:** los libros leídos cuya fecha exacta no se conoce se registran con `2022-01-01`, para poder contarlos por año.
 - **Un libro leído no cambia de fecha:** marcarlo de nuevo no sobrescribe la fecha original.
@@ -227,8 +235,9 @@ Elige una opción: 4
 
 - **Python 3** (versión 3.8 o superior)
 - Solo librería estándar, sin instalar nada: `abc`, `json`, `pathlib`, `shutil`, `datetime` y `unicodedata`
+- **HTML5, CSS3 y JavaScript (ES6+)** para la versión web, sin librerías externas
 - **Git y GitHub** para el control de versiones
-- **PyCharm** como entorno de desarrollo
+- **PyCharm** (Python) y **VS Code** con la extensión Live Server (web) como entornos de desarrollo
 
 ## Cómo ejecutar el programa
 
@@ -247,13 +256,42 @@ Elige una opción: 4
 
 La primera vez, la biblioteca estará vacía y `books.json` se creará automáticamente al añadir el primer libro.
 
+## Versión web
+
+La carpeta [`web/`](./web) contiene una versión web responsive que reproduce el mismo diseño orientado a objetos: las clases `Book` y `Library` tienen los mismos métodos que en Python, escritos en JavaScript.
+
+**Qué permite hacer**
+
+- Añadir libros, editar su título y darlos de baja.
+- Marcar un libro como leído con su fecha.
+- Consultar los libros **leídos**, **pendientes**, **duplicados** y **por año**, siempre en orden alfabético.
+- Buscar por título o autor y ver estadísticas (total, leídos, pendientes y duplicados).
+- Importar y exportar la biblioteca en formato JSON, con el mismo formato que `books.json`.
+
+**Cómo ejecutarla**
+
+1. Abre la carpeta del proyecto en VS Code e instala la extensión **Live Server**.
+2. Clic derecho sobre `web/index.html` → **Open with Live Server**.
+3. Pulsa **Importar** y selecciona tu `books.json` para cargar tus libros.
+
+Los datos de la web se guardan en el navegador (`localStorage`), por lo que no se pierden al recargar. No se sincronizan con `books.json`: lo que se cambia en la web no se escribe en el archivo de Python.
+
+**Aprendizajes**
+
+- Trasladar un diseño POO de Python a JavaScript.
+- Usar `localStorage` e importar archivos JSON.
+- Organizar el código en HTML, CSS y JavaScript por separado.
+- Trabajar con Git haciendo commits pequeños y descriptivos.
+
 ## Decisiones de diseño
 
 - **Herencia por estado de lectura y no por formato:** solo tengo libros impresos, así que `ReadBook` y `PendingBook` representan mejor mi caso. Además hacen imposible un estado incoherente, como un libro pendiente con fecha de lectura.
 - **`copies` en lugar de registros repetidos:** un duplicado es el mismo libro con más de un ejemplar, no una fila nueva.
 - **Libros nuevos en la lista, sin tocar el formato JSON:** el archivo conserva la misma estructura, y los libros ya guardados se cargan sin cambios.
-- **`Library` no imprime:** así la lógica se podría reutilizar con otra interfaz, como una web.
+- **`Library` no imprime:** así la lógica se puede reutilizar con otra interfaz, como ya se hace en la versión web, donde la función `render()` dibuja los datos.
+- **Misma POO en dos lenguajes:** `Book` y `Library` mantienen los mismos métodos en Python y en JavaScript; solo cambia la sintaxis.
 - **Ordenar solo al mostrar:** se ordena una copia de la lista, de modo que el orden de `books.json` no cambia.
+- **Web responsive:** CSS Grid, Flexbox y `@media` para adaptarla a móvil, tablet y ordenador.
 - **Idioma:** código, clases, métodos y variables en inglés; mensajes y preguntas de la terminal en español.
 
 ## Control de versiones
@@ -265,9 +303,10 @@ La primera vez, la biblioteca estará vacía y `books.json` se creará automáti
 ## Posibles mejoras
 
 - Editar el autor de un libro desde el menú.
-- Búsqueda por título.
+- Búsqueda por título en la consola (la web ya la tiene).
 - Tests automáticos para `Book`, `ReadBook`, `PendingBook` y `Library`.
 - Nuevas subclases si algún día aparecen otros formatos (ebook, audiolibro).
+- Publicar la versión web con GitHub Pages y sincronizarla con `books.json`.
 
 ---
 
